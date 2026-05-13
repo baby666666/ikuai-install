@@ -38,4 +38,10 @@ curl -O https://raw.githubusercontent.com/bin456789/reinstall/main/reinstall.sh 
 curl -O https://raw.githubusercontent.com/bin456789/reinstall/main/reinstall.sh && bash reinstall.sh dd --img https://raw.githubusercontent.com/baby666666/ikuai-install/main/iso/iKuai8_x64_3.7.21_Enterprise-ShellFull_Build202509221910_eth0-wan1-wanweb.img.gz
 ```
 
+64 位 Enterprise 3.7.21 + Shell 完整功能升级包：
+
+```bash
+https://raw.githubusercontent.com/baby666666/ikuai-install/main/iso/iKuai8_x64_3.7.21_Enterprise-ShellFull_Build202509221910.bin
+```
+
 镜像已预设 `eth0 -> wan1`，并开启 WAN 口 Web 访问。
