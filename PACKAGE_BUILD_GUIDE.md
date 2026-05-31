@@ -167,6 +167,8 @@ header JSON 必要字段：
 
 注意：这是利用 iKuai 升级脚本会 source `/tmp/iktmp/upgrade/fileinfo` 的行为。仅适用于当前验证过的 iKuai 3.7.21 x64 Enterprise。
 
+升级包里不要调用 `/etc/mnt/deve.sh boot_begin`。`boot_begin` 只适合全新安装镜像初始化网口时使用；Web 升级包必须保留用户现有网口绑定，不能把 `eth0` 强制绑定到 `wan1`。
+
 ## 生成 Web 升级包脚本
 
 把下面脚本保存为 `build_upgrade_bin.py`，同目录放置：
@@ -220,7 +222,6 @@ boot_install = """#!/bin/sh
 mkdir -p /tmp/iktmp
 if [ -f /etc/mnt/deve.sh ]; then
     chmod 755 /etc/mnt/deve.sh 2>/dev/null || true
-    /etc/mnt/deve.sh boot_begin >/tmp/iktmp/wg_wan_boot_begin.log 2>&1 || true
     /etc/mnt/deve.sh >/tmp/iktmp/wg_wan_runtime_install.log 2>&1 || true
 fi
 exit 0
@@ -300,7 +301,7 @@ print("file sha256:", hashlib.sha256(data).hexdigest())
 
 ```text
 87c0a5113323b4615faa306849868048c17116aab0046e2bd2e6eb4c2888e2c8  iso/iKuai8_x64_3.7.21_Enterprise-ShellFull-WG-WAN-Hook_Build202509221910_eth0-wan1-wanweb.img.gz
-23638b7292570f4798a4b8dbafd60ce17e558008587171fd33667a90320d8f0d  iso/iKuai8_x64_3.7.21_Enterprise-ShellFull-WG-WAN-Hook_Build202509221910.bin
+5a2ede8299c09fc6d368920f84b81304ee2aae8756b34f0eed53185ede9e56ef  iso/iKuai8_x64_3.7.21_Enterprise-ShellFull-WG-WAN-Hook_Build202509221910.bin
 ```
 
 ## 测试步骤
@@ -341,5 +342,6 @@ ls -l /etc/mnt/deve.sh /etc/log/script/install.sh
 
 - 不要重新加密 `/boot/rootfs`，之前测试会导致无限重启。
 - Web 系统升级包只能可靠写第 1 分区，所以第 3 分区补丁必须通过 header 注入或完整磁盘镜像写入。
+- Web 升级包不要调用 `deve.sh boot_begin`，否则可能改动用户原有网口绑定，造成升级后无法上网。
 - 如果 iKuai 后续版本修改了 `upgrade.sh` 的 source 行为，这个 `.bin` 注入方法可能失效。
 - 文件名可以改，但建议同步修改 header JSON 里的 `filename`，否则 Web 页面显示可能不一致。
