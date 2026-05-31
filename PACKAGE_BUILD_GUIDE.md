@@ -301,7 +301,7 @@ print("file sha256:", hashlib.sha256(data).hexdigest())
 
 ```text
 87c0a5113323b4615faa306849868048c17116aab0046e2bd2e6eb4c2888e2c8  iso/iKuai8_x64_3.7.21_Enterprise-ShellFull-WG-WAN-Hook_Build202509221910_eth0-wan1-wanweb.img.gz
-5a2ede8299c09fc6d368920f84b81304ee2aae8756b34f0eed53185ede9e56ef  iso/iKuai8_x64_3.7.21_Enterprise-ShellFull-WG-WAN-Hook_Build202509221910.bin
+216aae6a72e3beb805411b4fd739ee68672061042a0b7fea20dce23d5614863f  iso/iKuai8_x64_3.7.21_Enterprise-ShellFull-WG-WAN-Hook_Build202509221910.bin
 ```
 
 ## 测试步骤
