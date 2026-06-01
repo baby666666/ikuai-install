@@ -52,7 +52,7 @@ https://raw.githubusercontent.com/baby666666/ikuai-install/main/iso/iKuai8_x64_3
 
 这个 `.bin` 使用 `firmwareid=10001`，Web“版本升级”可识别。上传解析/升级时会先写入 `/etc/mnt/deve.sh` 和 `/etc/log/script/install.sh`，再按系统升级流程写入第 1 分区；不重新加密 rootfs。升级包不修改现有网口绑定，原来 `eth0` 绑定什么就保持什么。
 
-B 节点中心分流/IP库自动更新已接入 Web，位置：`网络设置 > VPN客户端 > WireGuard` 页面底部的“中心分流/IP库自动更新”。也可以继续用脚本测试：
+B 节点中心分流/IP库自动更新已接入 Web，位置：`流控分流 > 分流设置 > 端口分流` 页面底部的“中心分流/IP库自动更新”。大陆/海外出口线路从真实线路下拉选择，支持 WAN、PPTP、L2TP、OpenVPN、IKEv2 和 WireGuard。也可以继续用脚本测试：
 
 ```bash
 /usr/ikuai/script/wg_center_route.sh update_apply
