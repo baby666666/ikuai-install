@@ -59,12 +59,34 @@ binwalk
 它的职责：
 
 - 启动时修补 `/usr/ikuai/script/wireguard.sh`。
+- 启动时修补 `/usr/ikuai/script/stream_ipport.sh`。
 - 修补 WireGuard Web 前端 JS。
 - 给 WireGuard 数据库补充字段。
 - 修复本地公钥/私钥生成。
 - 实现 WireGuard 接入流量源进源出。
+- 实现 WireGuard 客户端接入流量优先按端口分流决定出口。
+- 让端口分流线路支持真实 WAN、OpenVPN、PPTP、L2TP、IKEv2/IPSec、WireGuard 等接口。
 - 实现 WireGuard 接口默认地址、端口、隧道地址、DNS 默认值。
+- 实现中国 IP 库自动更新到 IP 分组，供分流规则选择。
 - 写入标记文件便于检查版本。
+
+## WireGuard 分流核心逻辑
+
+这版分流优先级必须保持为：
+
+1. WireGuard 客户端进入 iKuai 后，先经过 `流控分流 > 分流设置 > 端口分流`。
+2. 如果端口分流命中源地址、目的地址、协议和线路，就按端口分流选择的出口走，例如 `ovpn_sc`、`wg1`、`wan2`。
+3. 如果端口分流没有命中，WireGuard 才按源进源出处理，使用客户端连接进来的 WAN 作为默认返回出口。
+
+为了解决 WG 客户端命中端口分流但实际仍走默认 WAN 的问题，`stream_ipport.sh` 里增加了 `WG_STREAM_PREROUTE` 兜底链：
+
+- 在 `mangle PREROUTING` 最前面挂载 `WG_STREAM_PREROUTE`。
+- 对单线路端口分流规则直接 `MARK --set-mark` 到目标接口的 mark。
+- 保存 connmark，避免后续包丢失标记。
+- 对 VPN/WG 这类非 WAN 接口自动补 `ip rule fwmark -> table`。
+- 对非 WAN 出口自动补 `POSTROUTING MASQUERADE`。
+
+这个兜底链是必须保留的。只改 Web 线路列表不够，旧的 `NTH_CONNMARK -> ik_cntl mark_rule` 在 WG 入站转发场景下可能不会在首次路由查找前完成 skb mark，结果仍会走默认 WAN。
 
 ## 全新安装镜像制作
 
@@ -177,6 +199,14 @@ header JSON 必要字段：
 p1.img
 deve.sh
 ```
+
+当前仓库里的打包源脚本可直接使用：
+
+```text
+work/deve_wgwan.sh
+```
+
+如果按本教程新建临时构建目录，把它复制或改名为 `deve.sh` 后再生成升级包。
 
 然后执行：
 
@@ -301,7 +331,7 @@ print("file sha256:", hashlib.sha256(data).hexdigest())
 
 ```text
 87c0a5113323b4615faa306849868048c17116aab0046e2bd2e6eb4c2888e2c8  iso/iKuai8_x64_3.7.21_Enterprise-ShellFull-WG-WAN-Hook_Build202509221910_eth0-wan1-wanweb.img.gz
-e8cf35b1f5a3c5c25d917aa6e2e0adda84811f94a166a4ee914526192fd7f8df  iso/iKuai8_x64_3.7.21_Enterprise-ShellFull-WG-WAN-Hook_Build202509221910.bin
+aee605ec748d5fcf613080ff64ae6ad749a43df52f57a64dcdb3ce1488f5618e  iso/iKuai8_x64_3.7.21_Enterprise-ShellFull-WG-WAN-Hook_Build202509221910.bin
 ```
 
 ## 测试步骤
@@ -338,10 +368,47 @@ ls -l /etc/mnt/deve.sh /etc/log/script/install.sh
 
 7. 使用 WAN2 外网 IP 连接 WireGuard，查询出口 IP，应从 WAN2 返回，不应走默认 WAN1。
 
+8. 验证 WireGuard 客户端流量可被端口分流改出口：
+
+```text
+流控分流 > 分流设置 > 端口分流
+
+分流方式: 外网线路
+线路: ovpn_sc 或其它 VPN/WG 线路
+协议: 任意
+源地址: 手机 WG 地址段，例如 10.20.2.0/24
+目的地址: 留空
+```
+
+手机通过 WireGuard 连入 iKuai 后，访问公网查询 IP。端口分流命中时，公网出口应为所选线路；没有端口分流规则时，才按 WireGuard 源进源出走接入 WAN。
+
+9. 验证端口分流线路列表必须包含真实接口：
+
+```text
+wan1/wan2
+ovpn_xxx
+pptp_xxx
+l2tp_xxx
+iked_xxx 或 ipsec_xxx
+wg1/wg2/wg3
+```
+
+10. 如果分流到 OpenVPN 后公网 IP 仍不是 OpenVPN 对端，需要确认 OpenVPN 本身是否能作为公网出口：
+
+```text
+OpenVPN 客户端已连接并有 tunnel_ip
+OpenVPN 服务端允许客户端转发公网流量
+OpenVPN 服务端做了 NAT/MASQUERADE
+```
+
+iKuai 客户端配置里 `redirect_gateway=0`、`accept_push_route=0` 不一定代表不能分流到 OpenVPN；本包会为该接口补默认 dev 路由。但最终公网出口是否成功，还取决于 OpenVPN 服务端是否允许并 NAT 这些转发流量。
+
 ## 注意事项
 
 - 不要重新加密 `/boot/rootfs`，之前测试会导致无限重启。
 - Web 系统升级包只能可靠写第 1 分区，所以第 3 分区补丁必须通过 header 注入或完整磁盘镜像写入。
 - Web 升级包不要调用 `deve.sh boot_begin`，否则可能改动用户原有网口绑定，造成升级后无法上网。
+- 不要只在 Web 前端加入 VPN/WG 线路选项，必须同步修补 `stream_ipport.sh` 的运行时路由和 mangle 规则。
+- WG 客户端走其它 VPN/WG 出口时，端口分流规则的源地址要填客户端地址段，例如隧道 peer 是 `10.20.2.1/24`，规则源地址填 `10.20.2.0/24`。
 - 如果 iKuai 后续版本修改了 `upgrade.sh` 的 source 行为，这个 `.bin` 注入方法可能失效。
 - 文件名可以改，但建议同步修改 header JSON 里的 `filename`，否则 Web 页面显示可能不一致。
