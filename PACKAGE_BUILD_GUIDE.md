@@ -330,7 +330,7 @@ print("file sha256:", hashlib.sha256(data).hexdigest())
 当前仓库成品：
 
 ```text
-87c0a5113323b4615faa306849868048c17116aab0046e2bd2e6eb4c2888e2c8  iso/iKuai8_x64_3.7.21_Enterprise-ShellFull-WG-WAN-Hook_Build202509221910_eth0-wan1-wanweb.img.gz
+7e7bbcfd29258530eb0444634fa8e9d88de39d644a0d08bf6c3357ebdffde1a4  iso/iKuai8_x64_3.7.21_Enterprise-ShellFull-WG-WAN-Hook_Build202509221910_eth0-wan1-wanweb.img.gz
 aee605ec748d5fcf613080ff64ae6ad749a43df52f57a64dcdb3ce1488f5618e  iso/iKuai8_x64_3.7.21_Enterprise-ShellFull-WG-WAN-Hook_Build202509221910.bin
 ```
 
