@@ -184,6 +184,9 @@ __wg_stream_preroute_commit()
 	while iptables -w -t mangle -D PREROUTING -j "$WG_STREAM_PREROUTE_CHAIN" 2>/dev/null; do :; done
 	iptables -w -t mangle -I PREROUTING 1 -j "$WG_STREAM_PREROUTE_CHAIN" 2>/dev/null
 	iptables -w -t mangle -F "$WG_STREAM_PREROUTE_CHAIN" 2>/dev/null
+	# Never policy-route WireGuard handshakes, router DNS, or other traffic
+	# addressed to the router itself. Only forwarded client traffic belongs here.
+	iptables -w -t mangle -A "$WG_STREAM_PREROUTE_CHAIN" -m addrtype --dst-type LOCAL -j RETURN 2>/dev/null
 
 	[ -s "$WG_STREAM_PREROUTE_RULE" ] || return
 	sort -n -k1 "$WG_STREAM_PREROUTE_RULE" |while read rule; do
