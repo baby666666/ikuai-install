@@ -38,16 +38,16 @@ curl -O https://raw.githubusercontent.com/bin456789/reinstall/main/reinstall.sh 
 curl -O https://raw.githubusercontent.com/bin456789/reinstall/main/reinstall.sh && bash reinstall.sh dd --img https://raw.githubusercontent.com/baby666666/ikuai-install/main/iso/iKuai8_x64_3.7.21_Enterprise-ShellFull_Build202509221910_eth0-wan1-wanweb.img.gz
 ```
 
-64 位 Enterprise 3.7.21 + Shell 完整功能 + WireGuard 出口 WAN 分流：
+64 位 Enterprise 3.7.21 + Shell 完整功能 + WireGuard 出口 WAN 分流 + 智能 DNS 分流：
 
 ```bash
-curl -O https://raw.githubusercontent.com/bin456789/reinstall/main/reinstall.sh && bash reinstall.sh dd --img https://raw.githubusercontent.com/baby666666/ikuai-install/main/iso/iKuai8_x64_3.7.21_Enterprise-ShellFull-WG-WAN-Hook_Build202509221910_eth0-wan1-wanweb.img.gz
+curl -O https://raw.githubusercontent.com/bin456789/reinstall/main/reinstall.sh && bash reinstall.sh dd --img https://raw.githubusercontent.com/baby666666/ikuai-install/main/iso/iKuai8_x64_3.7.21_Enterprise-ShellFull-WG-DNS-Test_Build202509221921_eth0-wan1-wanweb.img.gz
 ```
 
 保留 WireGuard 功能的 Web 版本升级包：
 
 ```text
-https://raw.githubusercontent.com/baby666666/ikuai-install/main/iso/iKuai8_x64_3.7.21_Enterprise-ShellFull-WG-WAN-Hook_Build202509221910.bin
+https://raw.githubusercontent.com/baby666666/ikuai-install/main/iso/iKuai8_x64_3.7.21_Enterprise-ShellFull-WG-DNS-Test_Build202509221921.bin
 ```
 
 这个 `.bin` 使用 `firmwareid=10001`，Web“版本升级”可识别。上传解析/升级时会先写入 `/etc/mnt/deve.sh` 和 `/etc/log/script/install.sh`，再按系统升级流程写入第 1 分区；不重新加密 rootfs。升级包不修改现有网口绑定，原来 `eth0` 绑定什么就保持什么。

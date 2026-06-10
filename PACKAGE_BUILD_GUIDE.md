@@ -2,8 +2,8 @@
 
 这份说明给后续接手的 GPT 或维护者使用，目标是复现当前仓库里的两个成品：
 
-- 全新安装镜像：`iso/iKuai8_x64_3.7.21_Enterprise-ShellFull-WG-WAN-Hook_Build202509221910_eth0-wan1-wanweb.img.gz`
-- Web 升级包：`iso/iKuai8_x64_3.7.21_Enterprise-ShellFull-WG-WAN-Hook_Build202509221910.bin`
+- 全新安装镜像：`iso/iKuai8_x64_3.7.21_Enterprise-ShellFull-WG-DNS-Test_Build202509221921_eth0-wan1-wanweb.img.gz`
+- Web 升级包：`iso/iKuai8_x64_3.7.21_Enterprise-ShellFull-WG-DNS-Test_Build202509221921.bin`
 
 ## 当前实现思路
 
@@ -117,13 +117,13 @@ sync
 sudo umount /mnt/ikuai-p3
 sudo losetup -d /dev/loop0
 
-gzip -c disk.img > iKuai8_x64_3.7.21_Enterprise-ShellFull-WG-WAN-Hook_Build202509221910_eth0-wan1-wanweb.img.gz
+gzip -c disk.img > iKuai8_x64_3.7.21_Enterprise-ShellFull-WG-DNS-Test_Build202509221921_eth0-wan1-wanweb.img.gz
 ```
 
 校验：
 
 ```bash
-sha256sum iKuai8_x64_3.7.21_Enterprise-ShellFull-WG-WAN-Hook_Build202509221910_eth0-wan1-wanweb.img.gz
+sha256sum iKuai8_x64_3.7.21_Enterprise-ShellFull-WG-DNS-Test_Build202509221921_eth0-wan1-wanweb.img.gz
 ```
 
 ## 从完整镜像提取 Web 升级包 payload
@@ -255,7 +255,7 @@ import textwrap
 from pathlib import Path
 
 build = "202509221910"
-payload_name = f"iKuai8_x64_3.7.21_Enterprise-ShellFull-WG-WAN-Hook_Build{build}.bin"
+payload_name = f"iKuai8_x64_3.7.21_Enterprise-ShellFull-WG-DNS-Test_Build{build}.bin"
 out = Path(payload_name)
 
 p1 = Path("p1.img")
@@ -337,7 +337,7 @@ import json
 import struct
 from pathlib import Path
 
-p = Path("iKuai8_x64_3.7.21_Enterprise-ShellFull-WG-WAN-Hook_Build202509221910.bin")
+p = Path("iKuai8_x64_3.7.21_Enterprise-ShellFull-WG-DNS-Test_Build202509221921.bin")
 data = p.read_bytes()
 headlen = struct.unpack(">I", data[:4])[0]
 fixed = bytes.fromhex("1f8b08006f9b4b590203")
@@ -360,8 +360,8 @@ print("file sha256:", hashlib.sha256(data).hexdigest())
 当前仓库成品：
 
 ```text
-ca67bc218f160ed4cdba1fa89636eb9dd389ea306ead14f7561648ddb885afe1  iso/iKuai8_x64_3.7.21_Enterprise-ShellFull-WG-WAN-Hook_Build202509221910_eth0-wan1-wanweb.img.gz
-362da71f75827f1eade7d8417e535dd1890cd9ea1029e925b92278c7fae62b68  iso/iKuai8_x64_3.7.21_Enterprise-ShellFull-WG-WAN-Hook_Build202509221910.bin
+608dee463b581453cd56f72d9a8bc014af39f4ba80721d9d04cc6909d222ca33  iso/iKuai8_x64_3.7.21_Enterprise-ShellFull-WG-DNS-Test_Build202509221921_eth0-wan1-wanweb.img.gz
+8deec685c9c22bd7854d3081e790bf22657a519a2bcfd96b6c520467e3aa990c  iso/iKuai8_x64_3.7.21_Enterprise-ShellFull-WG-DNS-Test_Build202509221921.bin
 ```
 
 ## 测试步骤
