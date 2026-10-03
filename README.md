@@ -1,4 +1,5 @@
-# iKuai 3.7.26 免费插件版一键安装
+# iKuai 交流群
+镜像来自 [ikuai交流群](https://t.me/ikuai8)
 
 本仓库仅提供 **iKuai 3.7.26 免费插件版 IMG.GZ 一键安装镜像**及校验文件。镜像来自 [ikuai-free](https://github.com/baby666666/ikuai-free/releases/tag/v3.7.26-free-plugins)，基于官方 x64 免费版 Build202609111743，加入插件管理；属于**非官方定制固件**。
 
